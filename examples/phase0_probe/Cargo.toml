@@ -1,0 +1,21 @@
+[package]
+name = "phase0-probe-example"
+version = "0.1.0"
+edition = "2024"
+authors = ["Maxi Boch"]
+description = "Baseline probe: does contemporary upstream WaterUI build and render headless?"
+license.workspace = true
+repository.workspace = true
+keywords = ["ui", "framework", "example"]
+categories = ["gui"]
+publish = false
+
+[features]
+dev = ["waterui/dynamic_linking"]
+
+[dependencies]
+waterui.workspace = true
+
+[dev-dependencies]
+waterui-testing.workspace = true
+hydrolysis-m3.workspace = true
