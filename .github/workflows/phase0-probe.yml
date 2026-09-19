@@ -1,0 +1,82 @@
+# Phase-0 baseline for the WaterUI upgrade.
+#
+# Upstream's own pull-request gate is a compile check, not a test gate: every
+# substantive job in `test.yml` is gated on `full`, and the real matrix lives
+# in `nightly.yml`, which GitHub leaves `disabled_fork` on a fork. Enabling
+# that nightly here would run upstream's entire platform matrix daily for a
+# signal we do not need. This workflow instead builds and tests exactly one
+# crate — the phase-0 probe — on the two targets the upgrade actually has to
+# clear, which keeps the cost proportionate to the question.
+name: Phase 0 probe
+
+on:
+  pull_request:
+    paths:
+      - "examples/phase0_probe/**"
+      - ".github/workflows/phase0-probe.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_NET_RETRY: "10"
+  RUSTUP_MAX_RETRIES: "10"
+  CARGO_INCREMENTAL: 0
+
+concurrency:
+  group: phase0-probe-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  probe:
+    name: probe (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        # ubuntu is the headless hydrolysis lane — the one the fleet actually
+        # renders through, since every Mac in it is screen-locked. macOS is the
+        # target voicemaci ships on.
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      # Upstream's own list: ALSA, PipeWire, VA-API, fonts, GTK4, EGL, udev,
+      # plus the Vulkan ICD loader. `gpu: true` pulls mesa-vulkan-drivers, and
+      # it is the load-bearing part here -- llvmpipe/lavapipe is what lets a
+      # GPU-backed render run headless on a runner with no GPU, which is the
+      # whole hydrolysis lane. The first run of this job installed nothing and
+      # failed on Linux while macOS was still building.
+      - uses: ./.github/actions/setup-linux-deps
+        if: runner.os == 'Linux'
+        with:
+          gpu: "true"
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: phase0-probe
+
+      - name: Build the probe
+        run: cargo build -p phase0-probe-example
+
+      - name: Render it headlessly
+        run: cargo test -p phase0-probe-example -- --nocapture
+
+      # Upstream's own examples, built as written. The probe proves our
+      # minimal usage works; these prove upstream's real code does, on these
+      # targets, with no API guessed by us. `gallery` is the M3 catalog and is
+      # the closest thing upstream has to maxi-ui's usage; `stress` drives the
+      # headless harness with `max_gpu_surface_layers`, which is the nearest
+      # signal available about the GPU-surface path without a window.
+      - name: Upstream gallery, headless
+        run: cargo test -p gallery-example -- --nocapture
+
+      - name: Upstream stress, headless
+        run: cargo test -p stress-example -- --nocapture
