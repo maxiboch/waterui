@@ -1,0 +1,59 @@
+# Phase-0 baseline for the WaterUI upgrade.
+#
+# Upstream's own pull-request gate is a compile check, not a test gate: every
+# substantive job in `test.yml` is gated on `full`, and the real matrix lives
+# in `nightly.yml`, which GitHub leaves `disabled_fork` on a fork. Enabling
+# that nightly here would run upstream's entire platform matrix daily for a
+# signal we do not need. This workflow instead builds and tests exactly one
+# crate — the phase-0 probe — on the two targets the upgrade actually has to
+# clear, which keeps the cost proportionate to the question.
+name: Phase 0 probe
+
+on:
+  pull_request:
+    paths:
+      - "examples/phase0_probe/**"
+      - ".github/workflows/phase0-probe.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_NET_RETRY: "10"
+  RUSTUP_MAX_RETRIES: "10"
+  CARGO_INCREMENTAL: 0
+
+concurrency:
+  group: phase0-probe-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  probe:
+    name: probe (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        # ubuntu is the headless hydrolysis lane — the one the fleet actually
+        # renders through, since every Mac in it is screen-locked. macOS is the
+        # target voicemaci ships on.
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: phase0-probe
+
+      - name: Build the probe
+        run: cargo build -p phase0-probe-example
+
+      - name: Render it headlessly
+        run: cargo test -p phase0-probe-example -- --nocapture
