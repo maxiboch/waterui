@@ -29,6 +29,7 @@ fn caption(line: &'static str) -> impl View {
     text(line)
 }
 
+/// The probe's view: three caption lines, nothing else.
 #[preview]
 pub fn demo() -> impl View {
     vstack((
@@ -38,6 +39,8 @@ pub fn demo() -> impl View {
     ))
 }
 
+/// Desktop entry point, so the same view can be run on a real backend by hand
+/// rather than only under the headless harness.
 pub fn app(env: Environment) -> App {
     App::new(demo, env)
 }

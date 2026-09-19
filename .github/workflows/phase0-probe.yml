@@ -57,3 +57,15 @@ jobs:
 
       - name: Render it headlessly
         run: cargo test -p phase0-probe-example -- --nocapture
+
+      # Upstream's own examples, built as written. The probe proves our
+      # minimal usage works; these prove upstream's real code does, on these
+      # targets, with no API guessed by us. `gallery` is the M3 catalog and is
+      # the closest thing upstream has to maxi-ui's usage; `stress` drives the
+      # headless harness with `max_gpu_surface_layers`, which is the nearest
+      # signal available about the GPU-surface path without a window.
+      - name: Upstream gallery, headless
+        run: cargo test -p gallery-example -- --nocapture
+
+      - name: Upstream stress, headless
+        run: cargo test -p stress-example -- --nocapture

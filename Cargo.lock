@@ -6632,6 +6632,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "phase0-probe-example"
+version = "0.1.0"
+dependencies = [
+ "hydrolysis-m3",
+ "waterui",
+ "waterui-testing",
+]
+
+[[package]]
 name = "phf"
 version = "0.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
