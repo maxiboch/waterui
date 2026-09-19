@@ -1,0 +1,20 @@
+.github/workflows/phase0-probe.yml
+  h_cebe5b6d461c32 60-71
+Cargo.lock
+  h_cebe5b6d461c32 6634-6642
+examples/phase0_probe/Cargo.toml
+  h_cebe5b6d461c32 22-24
+examples/phase0_probe/src/lib.rs
+  h_cebe5b6d461c32 32,42-43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "303ee0c77c7a41d2151951cd69fd4f16c1a327b1",
+  "prompts": {},
+  "humans": {
+    "h_cebe5b6d461c32": {
+      "author": "Maxi Boch <874012+maxiboch@users.noreply.github.com>"
+    }
+  }
+}
