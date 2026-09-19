@@ -1,0 +1,16 @@
+examples/phase0_probe/Cargo.toml
+  h_cebe5b6d461c32 1-21
+examples/phase0_probe/src/lib.rs
+  h_cebe5b6d461c32 1-63
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "84f0f6870282d600a84f694ccd9295571567457d",
+  "prompts": {},
+  "humans": {
+    "h_cebe5b6d461c32": {
+      "author": "Maxi Boch <874012+maxiboch@users.noreply.github.com>"
+    }
+  }
+}
