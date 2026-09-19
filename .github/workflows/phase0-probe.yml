@@ -48,6 +48,17 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
+      # Upstream's own list: ALSA, PipeWire, VA-API, fonts, GTK4, EGL, udev,
+      # plus the Vulkan ICD loader. `gpu: true` pulls mesa-vulkan-drivers, and
+      # it is the load-bearing part here -- llvmpipe/lavapipe is what lets a
+      # GPU-backed render run headless on a runner with no GPU, which is the
+      # whole hydrolysis lane. The first run of this job installed nothing and
+      # failed on Linux while macOS was still building.
+      - uses: ./.github/actions/setup-linux-deps
+        if: runner.os == 'Linux'
+        with:
+          gpu: "true"
+
       - uses: Swatinem/rust-cache@v2
         with:
           key: phase0-probe
